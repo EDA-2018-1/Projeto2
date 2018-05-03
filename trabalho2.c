@@ -128,19 +128,20 @@ void pegaLinhaNome(int codigoArquivo, int linha, char* filename, char* conteudoL
 int* calculaDimensao(char* filename){
     int *dimensaoMatriz = (int*) calloc (2,sizeof(int));
 
+    printf(filename);
+
     FILE *arq;
     char c, end = '\n';
     int eol = 0;
     
-    dimensaoMatriz[1] = 1;
 
     if ((arq = fopen(filename, "r")) == NULL) {
         printf("Erro ao abrir o arquivo.");         
     } 
     else {
-        rewind(arq);
         while(fread(&c, sizeof(char), 1, arq)) {
             if (c == '\n'){
+              //  printf("%d",dimensaoMatriz[0]);
                 dimensaoMatriz[0]++;
                 eol = 1;
             }
@@ -149,6 +150,10 @@ int* calculaDimensao(char* filename){
             } 
         }
     }
+    dimensaoMatriz[1]++;
+
+    sleep(1);
+    printf("dimensao matriz %d\t %d", dimensaoMatriz[0], dimensaoMatriz[1]);
 
     fclose(arq);
     return dimensaoMatriz;
@@ -168,32 +173,23 @@ void calculaILBP(int mat[], int lin, int col){
    int* ilbp = (int *)calloc(pow(2, 9), sizeof(int));
    FILE* ilbp_file;
    fopen("ilpb.txt", "w");
-    
-   int i, j;
 
-    for (i=0; i< lin; i++){
-        for(j=0; j < col; j++){
-        	
-        	int **aux = (int**)calloc(lin,sizeof(int*));
-		    int k;
-		    for(int k=0; k<lin; k++){
-		        aux[i]=(int*)calloc(col,sizeof(int));
-		    }
-
+/*matriz normal*/
 	        // top line *(*(a+i)+j)
-	        *(*(aux+0)+0) = (i == 0 || j == 0) ? 0 : *(*(mat + ((i - 1) * col) + (j - 1)));
-	        *(*(aux+0)+1) = (i == 0) ? 0 : *(*(mat + ((i - 1) * col) + j));
-	        *(*(aux+0)+2) = (i == 0 || j == (col - 1)) ? 0 : *(*(mat + ((i - 1) * col) + (j + 1)));
+	        // *(*(aux+0)+0) = (i == 0 || j == 0) ? 0 : *(*(mat + ((i - 1) * col) + (j - 1)));
+	        // *(*(aux+0)+1) = (i == 0) ? 0 : *(*(mat + ((i - 1) * col) + j));
+	        // *(*(aux+0)+2) = (i == 0 || j == (col - 1)) ? 0 : *(*(mat + ((i - 1) * col) + (j + 1)));
 
-	        // center line
-	        *(*(aux+1)+0) = (j == 0) ? 0 : *(*(mat + (i * col) + (j - 1)));
-	        *(*(aux+1)+1) = *(*(mat + (i * col) + j)); // center piece
-	        *(*(aux+1)+2) = (j == (col - 1)) ? 0 : *(*(mat + (i * col) + (j + 1)));
+	        // // center line
+	        // *(*(aux+1)+0) = (j == 0) ? 0 : *(*(mat + (i * col) + (j - 1)));
+	        // *(*(aux+1)+1) = *(*(mat + (i * col) + j)); // center piece
+	        // *(*(aux+1)+2) = (j == (col - 1)) ? 0 : *(*(mat + (i * col) + (j + 1)));
 
-	        // botton line
-	        *(*(aux+2)+0) = (i == (lin - 1) || j == 0) ? 0 : *(*(mat + ((i + 1) * col) + (j - 1)));
-	        *(*(aux+2)+1) = (i == (lin - 1)) ? 0 : *(*(mat + ((i + 1) * col) + j));
-	        *(*(aux+2)+2) = (i == (lin - 1) || j == (col - 1)) ? 0 : *(*(mat + ((i + 1) * col) + (j + 1)));
+	        // // botton line
+	        // *(*(aux+2)+0) = (i == (lin - 1) || j == 0) ? 0 : *(*(mat + ((i + 1) * col) + (j - 1)));
+	        // *(*(aux+2)+1) = (i == (lin - 1)) ? 0 : *(*(mat + ((i + 1) * col) + j));
+	        // *(*(aux+2)+2) = (i == (lin - 1) || j == (col - 1)) ? 0 : *(*(mat + ((i + 1) * col) + (j + 1)));
+/*matriz de ponteiro*/
 
 // 	        // aux[0][0] = (i == 0 || j == 0) ? 0 : img[i-1][j-1];
 // 	        // aux[0][1] = (i == 0) ? 0 : img[i-1][j];
@@ -215,8 +211,7 @@ void calculaILBP(int mat[], int lin, int col){
 //             }
 //                     printf("\n");
 //     	}
-// 	}
- }
+}
 
 
 void armazenaArquivoMatriz(char* filename){
@@ -225,8 +220,7 @@ void armazenaArquivoMatriz(char* filename){
     int lin = dimensaoMatriz[0];
     int col = dimensaoMatriz[1];
 
-    printf("%d \t %s", dimensaoMatriz[0], lin);
-
+    
     FILE *file;
     file = fopen(filename, "r");
 
@@ -250,9 +244,11 @@ void armazenaArquivoMatriz(char* filename){
 	sleep(1);
 	//printf("Preparando imagem pro ILPB...");
 	sleep(1);
-//    calculaILBP(matrizImagem, lin, col);
+    calculaILBP(matrizImagem, lin, col);
 
     printf("\n");
+
+/*descomentar pra ver matrizes*/
 
     // for (int i=1;i<dimensaoMatriz[0]-1;i++){
     //     for(int j=1;j<dimensaoMatriz[1]-1;j++){
@@ -316,13 +312,12 @@ int main () {
     
     //treinamento do sistema
     
-    for (codigoArquivo = 2; codigoArquivo < 3; codigoArquivo++){ 
-        for (linha = 0; linha < 1; linha++){
-            sleep(1/60);
+    for (codigoArquivo = 2; codigoArquivo < 4; codigoArquivo++){ 
+        for (linha = 0; linha < 25; linha++){
             pegaLinhaNome(codigoArquivo, linha, arquivoNome, conteudoLinha);
-            armazenaArquivoMatriz(conteudoLinha);
+            sleep(1);
+           armazenaArquivoMatriz(conteudoLinha);
         }
-                    printf("-----------------\n");
     }
 
     return 0;
